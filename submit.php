@@ -9,10 +9,22 @@
                 die("Somwething went wrong");
     }
 
-    $sql="INSERT INTO `teachers`(`name`, `mobile_number`, `email_id`, `joining_date`) VALUES ('".$name."','".$mobile."','".$email."','".$joining_date."')";
+    if(isset($_POST['id']) && isset($_POST['action'])){
+        if($_POST['action']=="update"){
+            // update
+            $sql="UPDATE `teachers`  SET `name`='".$name."', `email_id`='".$email."', `mobile_number`='".$mobile."' , `joining_date`='".$joining_date."' where id=". $_POST['id'];
+            $actionToShow="update";
+        }
+    }else{
+        // create query
+        $sql="INSERT INTO `teachers`(`name`, `mobile_number`, `email_id`, `joining_date`) VALUES ('".$name."','".$mobile."','".$email."','".$joining_date."')";
+        $actionToShow="create";
+    }
+
+    
 
     if($conn->query($sql)){
-        $_SESSION["msg"]="Teacher added Successfully";
+        $_SESSION["msg"]="Teacher ".$actionToShow."d Successfully";
         header("Location:index.php");
     }else{
         echo $conn->error;

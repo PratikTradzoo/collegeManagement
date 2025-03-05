@@ -1,7 +1,7 @@
 <?php
+    session_start();
     include('db_coonect.php');
-    $sql="SELECT * FROM teachers";
-    $result=$conn->query($sql);
+
 
     if(isset($_GET['action']) && isset($_GET['id'])){   // check  if action and id is there 
         if($_GET['action']=="delete"){      // check action is delete or not
@@ -18,7 +18,34 @@
                 $data_row=$data->fetch_assoc();
             }
         }
+    }elseif(isset($_POST['name']) && isset($_POST['email']) && isset($_POST['mobile_number']) && isset($_POST['joiningDate'])){
+            $name= $_POST['name'];
+            $email=$_POST["email"];
+            $mobile=$_POST["mobile_number"];
+            $joining_date=$_POST["joiningDate"];
+            if(empty($name)||empty($email)||empty($mobile)||empty($joining_date)){
+                        die("Somwething went wrong");
+            }
+
+            if(isset($_POST['id']) && isset($_POST['action'])){
+                if($_POST['action']=="update"){
+                    // update
+                    $sql="UPDATE `teachers`  SET `name`='".$name."', `email_id`='".$email."', `mobile_number`='".$mobile."' , `joining_date`='".$joining_date."' where id=". $_POST['id'];
+                    $actionToShow="update";
+                }
+            }else{
+                // create query
+                $sql="INSERT INTO `teachers`(`name`, `mobile_number`, `email_id`, `joining_date`) VALUES ('".$name."','".$mobile."','".$email."','".$joining_date."')";
+                $actionToShow="create";
+            }
+            if($conn->query($sql)){
+                $_SESSION["msg"]="Teacher ".$actionToShow."d Successfully";
+            }else{
+                echo $conn->error;
+            }
     }
+    $sql="SELECT * FROM teachers";
+    $result=$conn->query($sql);
 ?>
 
 
@@ -38,17 +65,23 @@
         <h4>Welcome Admin !!</h4>    
         <div class="row">
             <div class="col-4 p-1 ">
-                    <form action="submit.php" method="POST">
+                    <form action="index.php" method="POST">
                         <?php 
-                            if(isset($_SESSION['msg'])){
-                                echo "<script>alert(".$_SESSION['msg'].")</script>";
+                            if(isset($_SESSION['msg']) && $_SESSION['msg']!=''){
+                                echo "<script>alert('".$_SESSION['msg']."')</script>";
+                                $_SESSION['msg']='';
                             }
                         ?>                        
-                        <legend>Add new Teacher</legend>
+                        
                         <?php  if(isset($_GET['action']) && $_GET['action']=="edit"){?>   
+                                <legend>Update  Teacher</legend>
                                 <input type="text" name="id" value="<?php echo $_GET['id'] ?>" hidden>
                                 <input type="text" name="action" value="update" hidden>
-                        <?php } ?>
+                        <?php }else{
+                            ?>
+                            <legend>Add new Teacher</legend>
+                            <?php
+                        } ?>
 
 
                         <div class="mb-3">
